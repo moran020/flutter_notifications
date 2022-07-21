@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: NotificationApp(),
     );
   }
@@ -25,72 +27,62 @@ class _NotificationAppState extends State<NotificationApp> {
   //объект уведомления
   late FlutterLocalNotificationsPlugin localNotifications;
 
-  //время ежедневного уведомления
-  DateTime time =
-      DateTime.utc(2022, 07, 19, 16, 30, 00).add(Duration(hours: 24));
-
   //инициализация
   @override
   void initState() {
     super.initState();
     //объект для Android настроек
-    var androidInitialize = new AndroidInitializationSettings('ic_launcher');
+    AndroidInitializationSettings androidInitialize =
+        const AndroidInitializationSettings('ic_launcher');
     //объект для IOS настроек
-    var IOSInitialize = new IOSInitializationSettings(
+    const IOSInitializationSettings iosInitialize = IOSInitializationSettings(
       requestSoundPermission: false,
       requestBadgePermission: false,
       requestAlertPermission: false,
     );
     // общая инициализация
-    var initializationSettings = new InitializationSettings(
-        android: androidInitialize, iOS: IOSInitialize);
+    InitializationSettings initializationSettings =
+        InitializationSettings(android: androidInitialize, iOS: iosInitialize);
 
     //мы создаем локальное уведомление
-    localNotifications = new FlutterLocalNotificationsPlugin();
+    FlutterLocalNotificationsPlugin localNotifications =
+        FlutterLocalNotificationsPlugin();
     localNotifications.initialize(initializationSettings);
-
-    _showNotification;
   }
 
-// ежедневное уведомление
-  Future _showNotification() async {
-    var androidDetails = new AndroidNotificationDetails(
+// уведомление каждую минуту
+  Future shownotifications() async {
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
       "ID",
       "Название уведомления",
       importance: Importance.high,
       channelDescription: "Контент уведомления",
     );
 
-    var iosDetails = new IOSNotificationDetails();
-    var generalNotificationDetails =
-        new NotificationDetails(android: androidDetails, iOS: iosDetails);
-    await localNotifications.schedule(0, "Ежедневное уведомление",
-        "Время заняться программированием!", time, generalNotificationDetails);
-  }
+    const IOSNotificationDetails iosDetails = IOSNotificationDetails();
 
-// уведомление каждую минуту
-  Future shownotifications() async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-      'repeating channel id',
-      'repeating channel name',
-    );
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-    await FlutterLocalNotificationsPlugin().periodicallyShow(0, 'Test title',
-        'test body', RepeatInterval.everyMinute, platformChannelSpecifics,
+    NotificationDetails platformChannelSpecifics =
+        const NotificationDetails(android: androidDetails, iOS: iosDetails);
+    await FlutterLocalNotificationsPlugin().periodicallyShow(
+        0,
+        'Ежедневное уведомление',
+        'Время заняться программированием!',
+        RepeatInterval.daily,
+        platformChannelSpecifics,
         androidAllowWhileIdle: true);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Text('Нажми на кнопку, чтобы получить уведомление'),
+      body: const Center(
+        child: Text('Нажми на кнопку, чтобы получать ежедневные уведомления',
+            style: TextStyle(fontSize: 20), textAlign: TextAlign.center),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: shownotifications,
-        child: Icon(Icons.notifications),
+        child: const Icon(Icons.notifications),
       ),
     );
   }
